@@ -1,5 +1,4 @@
 const config = require('config');
-const Joi = require('joi');
 const logger = require('./middleware/logger');
 const express = require('express');
 const courses = require('./routes/courses');
