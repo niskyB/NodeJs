@@ -1,23 +1,32 @@
 // getUser(1, getRepository);
 
 
-getUser(1)
-    .then(user => getRepository(user.gitHubUsername))
-    .then(repos => getCommits(repos[0]))
-    .then(commits => displayCommits(commits))
-    .catch(err => console.log(err.message));
+// getUser(1)
+//     .then(user => getRepository(user.gitHubUsername))
+//     .then(repos => getCommits(repos[0]))
+//     .then(commits => displayCommits(commits))
+//     .catch(err => console.log(err.message));
+
+async function displayCommits() {
+    const user = await getUser(1);
+    const repos = await getRepository(user.gitHubUsername);
+    const commits = await getCommits(repos[0]);
+    console.log(commits);
+}
+
+displayCommits();
 
 function displayCommits(commits) {
     console.log('Commits', commits);
 }
 
-function getCommits(repos) {
-    getCommits(repos, displayCommits);
-}
+// function getCommits(repos) {
+//     getCommits(repos, displayCommits);
+// }
 
-function getRepository(user) {
-    getRepository(user.gitHubUsername, getCommits);
-}
+// function getRepository(user) {
+//     getRepository(user.gitHubUsername, getCommits);
+// }
 
 function getUser(id) {
     return new Promise((resolve, reject) => {
