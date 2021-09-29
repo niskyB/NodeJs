@@ -20,9 +20,21 @@ async function getCourses() {
         .select({ name: 1, author: 1 });
 }
 
+async function getFullStacksCourses() {
+    return courses = await Course.find({ isPublished: true, tags: { $in: ['frontend', 'backend'] } })
+        // .or([{ tags: 'backend' }, { tags: 'frontend' }])
+        .sort({ price: -1 })
+        .select({ name: 1, author: 1 });
+}
+
 async function run() {
-    const courses = await getCourses();
+    const courses = await getFullStacksCourses();
     console.log(courses);
 }
+
+// async function run() {
+//     const courses = await getCourses();
+//     console.log(courses);
+// }
 
 run();
