@@ -60,9 +60,13 @@ async function updateCourse(id) {
         }
     });
     console.log(result);
-
 }
 
-updateCourse('6153217ddde8dc1297284bc5');
+async function removeCourse(id) {
+    const course = await Course.findByIdAndRemove(id);
+    console.log(course);
+}
+
+removeCourse('6153217ddde8dc1297284bc5');
 
 //getCourses();
