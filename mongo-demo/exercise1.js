@@ -27,10 +27,22 @@ async function getFullStacksCourses() {
         .select({ name: 1, author: 1 });
 }
 
+async function getExpensiveCourses() {
+    return courses = await Course.find({ isPublished: true })
+        .or([{ name: /.*by.*/i }, { price: { $gte: 15 } }])
+        .sort({ price: -1 })
+        .select({ name: 1, author: 1 });
+}
+
 async function run() {
-    const courses = await getFullStacksCourses();
+    const courses = await getExpensiveCourses();
     console.log(courses);
 }
+
+// async function run() {
+//     const courses = await getFullStacksCourses();
+//     console.log(courses);
+// }
 
 // async function run() {
 //     const courses = await getCourses();
