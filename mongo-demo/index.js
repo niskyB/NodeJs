@@ -15,7 +15,9 @@ const courseSchema = new mongoosse.Schema({
     category: {
         type: String,
         required: true,
-        enum: ['web', 'mobile', 'network']
+        enum: ['web', 'mobile', 'network'],
+        lowercase: true,
+        trim: true,
     },
     author: String,
     tags: {
@@ -33,7 +35,9 @@ const courseSchema = new mongoosse.Schema({
         type: Number,
         required: function() { return this.isPublished },
         min: 10,
-        max: 200
+        max: 200,
+        get: v => Math.round(v),
+        set: v => Math.round(v)
     }
 });
 
@@ -44,22 +48,26 @@ async function creatCourse() {
         name: 'Angular Course',
         category: 'web',
         author: 'Mosh',
-        tags: [],
+        tags: ['frontend'],
         isPublished: true,
-        price: 15
+        price: 15.8
     });
 
     try {
         const result = await course.save();
         console.log(result);
     } catch (er) {
-        console.log(er.message);
+        for (field in er.errors)
+            console.log(er.errors[field].message);
     }
 }
 
 async function getCourses() {
+    const pageNumber = 2;
+    const pageSize = 10;
     const courses = await Course.find({ author: 'Mosh', isPublished: true })
-        .limit(10)
+        // .skip((pageNumber - 1) * pageSize)
+        // .limit(pageSize)
         .sort({ name: 1 })
         .select({ name: 1, tags: 1 });
     console.log(courses);
