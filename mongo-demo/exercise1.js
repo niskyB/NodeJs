@@ -4,12 +4,12 @@ mongoosse.connect('mongodb://localhost/mongo-exercises')
     .catch(err => console.error(err));
 
 const schema = new mongoosse.Schema({
-    name: String,
+    name: { type: String, required: true },
     author: String,
     tags: [String],
     date: { type: Date, default: Date.now },
     isPublished: { type: Boolean, default: true },
-    price: { type: Number, default: 0 }
+    price: { type: Number, required: function() { return this.isPublished } }
 });
 
 const Course = mongoosse.model('Course', schema);
