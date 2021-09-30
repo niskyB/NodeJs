@@ -13,12 +13,6 @@ const Movie = mongoose.model('Movie', new mongoose.Schema({
     }
 }));
 
-const movies = [
-    { id: 1, title: 'Movie 1' },
-    { id: 2, title: 'Movie 2' },
-    { id: 3, title: 'Movie 3' },
-];
-
 router.get('/', async(req, res) => {
     const movies = await Movie.find().sort('name');
     res.send(movies);
