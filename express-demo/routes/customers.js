@@ -1,26 +1,7 @@
+const { Customer, validate } = require('../models/customer');
 const express = require('express');
-const Joi = require('joi');
 const router = express.Router();
 const mongoose = require('mongoose');
-
-const Customer = mongoose.model('Customer', new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        minLength: 3,
-        maxLength: 255
-    },
-    phone: {
-        type: String,
-        required: true,
-        minLength: 6,
-        maxLength: 11
-    },
-    isGold: {
-        type: Boolean,
-        required: true
-    }
-}));
 
 router.get('/', async(req, res) => {
     const customers = await Customer.find().sort('name');
@@ -36,7 +17,7 @@ router.get('/:_id', async(req, res) => {
 });
 
 router.post('/', async(req, res) => {
-    const error = validateCustomer(req.body);
+    const error = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
     const customer = new Customer({
@@ -55,7 +36,7 @@ router.post('/', async(req, res) => {
 });
 
 router.put('/:_id', async(req, res) => {
-    const error = validateCustomer(req.body);
+    const error = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
     await Customer.findByIdAndUpdate(req.params._id, {
@@ -71,21 +52,10 @@ router.put('/:_id', async(req, res) => {
 
 router.delete('/:_id', async(req, res) => {
     await Customer.findByIdAndDelete(req.params._id, (err, customer) => {
-            if (err) res.status(404).send('The customer with the given ID was not found.');
+            if (err || customer === null) res.status(404).send('The customer with the given ID was not found.');
             else res.send(customer);
         })
         .catch(err => {});
 });
-
-function validateCustomer(customer) {
-    const schema = Joi.object({
-        name: Joi.string().min(3).max(255).required(),
-        phone: Joi.string().min(6).max(11).required(),
-        isGold: Joi.boolean().required()
-    });
-
-    const { error } = schema.validate(customer);
-    return error;
-}
 
 module.exports = router;
