@@ -1,6 +1,17 @@
-const Joi = require('joi');
 const express = require('express');
+const Joi = require('joi');
 const router = express.Router();
+const mongoose = require('mongoose');
+
+
+const Movie = mongoose.model('Movie', new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        minLength: 3,
+        maxLength: 50,
+    }
+}));
 
 const movies = [
     { id: 1, title: 'Movie 1' },
@@ -8,48 +19,55 @@ const movies = [
     { id: 3, title: 'Movie 3' },
 ];
 
-router.get('/', (req, res) => {
+router.get('/', async(req, res) => {
+    const movies = await Movie.find().sort('name');
     res.send(movies);
 });
 
-router.get('/:id', (req, res) => {
-    const movie = movies.find(m => parseInt(req.params.id) === m.id);
-    if (!movie) return res.status(404).send(`The movie with the given ID was not found.`);
-    res.send(movie);
+router.get('/:_id', async(req, res) => {
+    await Movie.findById(req.params._id, (err, movie) => {
+            if (err) return res.status(404).send(`The movie with the given ID was not found.`);
+            else res.send(movie);
+        })
+        .catch(err => {});
 });
 
-router.post('/', (req, res) => {
+router.post('/', async(req, res) => {
     const error = validateMovie(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
+    const movie = new Movie({
+        name: req.body.title
+    });
 
-    const movie = {
-        id: movies.length + 1,
-        title: req.body.title,
+    try {
+        const result = await movie.save();
+        console.log(result);
+        res.send(result);
+    } catch (ex) {
+        for (field in er.errors)
+            console.log(er.errors[field].message);
     }
-
-    movies.push(movie);
-    res.send(movie);
 });
 
-router.put('/:id', (req, res) => {
-    const movie = movies.find(m => parseInt(req.params.id) === m.id);
-    if (!movie) return res.status(404).send(`The movie with the given ID was not found.`);
-
+router.put('/:_id', async(req, res) => {
     const error = validateMovie(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    movie.title = req.body.title;
-    res.send(movie);
+    await Movie.findByIdAndUpdate(req.params._id, { name: req.body.title }, { new: true }, (err, movie) => {
+            if (err) return res.status(404).send(`The movie with the given ID was not found.`);
+            else res.send(movie);
+        })
+        .catch((err) => {});
 });
 
-router.delete('/:id', (req, res) => {
-    const movie = movies.find(m => parseInt(req.params.id) === m.id);
-    if (!movie) return res.status(404).send(`The movie with the given ID was not found.`);
+router.delete('/:_id', async(req, res) => {
+    await Movie.findByIdAndRemove(req.params._id, (err, movie) => {
+            if (err) return res.status(404).send(`The movie with the given ID was not found.`);
+            else res.send(movie);
+        })
+        .catch(err => {})
 
-    const index = movies.indexOf(movie);
-    movies.splice(index, 1);
-    res.send(movie);
 });
 
 function validateMovie(movie) {
