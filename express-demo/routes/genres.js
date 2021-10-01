@@ -4,7 +4,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 
 
-const Movie = mongoose.model('Movie', new mongoose.Schema({
+const Genre = mongoose.model('Genre', new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -14,28 +14,28 @@ const Movie = mongoose.model('Movie', new mongoose.Schema({
 }));
 
 router.get('/', async(req, res) => {
-    const movies = await Movie.find().sort('name');
-    res.send(movies);
+    const genres = await Genre.find().sort('name');
+    res.send(genres);
 });
 
 router.get('/:_id', async(req, res) => {
-    await Movie.findById(req.params._id, (err, movie) => {
-            if (err) return res.status(404).send(`The movie with the given ID was not found.`);
-            else res.send(movie);
+    await Genre.findById(req.params._id, (err, genre) => {
+            if (err || genre === null) return res.status(404).send(`The genre with the given ID was not found.`);
+            else res.send(genre);
         })
         .catch(err => {});
 });
 
 router.post('/', async(req, res) => {
-    const error = validateMovie(req.body);
+    const error = validateGenre(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    const movie = new Movie({
-        name: req.body.title
+    const genre = new Genre({
+        name: req.body.name
     });
 
     try {
-        const result = await movie.save();
+        const result = await genre.save();
         console.log(result);
         res.send(result);
     } catch (ex) {
@@ -45,31 +45,31 @@ router.post('/', async(req, res) => {
 });
 
 router.put('/:_id', async(req, res) => {
-    const error = validateMovie(req.body);
+    const error = validateGenre(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    await Movie.findByIdAndUpdate(req.params._id, { name: req.body.title }, { new: true }, (err, movie) => {
-            if (err) return res.status(404).send(`The movie with the given ID was not found.`);
-            else res.send(movie);
+    await Genre.findByIdAndUpdate(req.params._id, { name: req.body.name }, { new: true }, (err, genre) => {
+            if (err || genre === null) return res.status(404).send(`The genre with the given ID was not found.`);
+            else res.send(genre);
         })
         .catch((err) => {});
 });
 
 router.delete('/:_id', async(req, res) => {
-    await Movie.findByIdAndRemove(req.params._id, (err, movie) => {
-            if (err) return res.status(404).send(`The movie with the given ID was not found.`);
-            else res.send(movie);
+    await Genre.findByIdAndRemove(req.params._id, (err, genre) => {
+            if (err || genre === null) return res.status(404).send(`The genre with the given ID was not found.`);
+            else res.send(genre);
         })
         .catch(err => {})
 
 });
 
-function validateMovie(movie) {
+function validateGenre(genre) {
     const schema = Joi.object({
-        title: Joi.string().min(3).required()
+        name: Joi.string().min(3).required()
     });
 
-    const { error } = schema.validate(movie);
+    const { error } = schema.validate(genre);
     return error;
 }
 
