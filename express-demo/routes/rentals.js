@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const Fawn = require('fawn');
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/auth');
 
 Fawn.init('mongodb://localhost/playground');
 
@@ -21,7 +22,7 @@ router.get('/:_id', async(req, res) => {
         .catch(err => {});
 });
 
-router.post('/', async(req, res) => {
+router.post('/', auth, async(req, res) => {
     const error = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 

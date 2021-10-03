@@ -3,6 +3,7 @@ const { Movie, validate } = require('../models/movie');
 const { Genre } = require('../models/genre');
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/auth');
 
 router.get('/', async(req, res) => {
     const movies = await Movie.find().sort('name');
@@ -17,7 +18,7 @@ router.get('/:_id', async(req, res) => {
         .catch(err => {});
 });
 
-router.post('/', async(req, res) => {
+router.post('/', auth, async(req, res) => {
     const error = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
     const genre = await Genre.findById(req.body.genreId)
@@ -36,7 +37,7 @@ router.post('/', async(req, res) => {
     }
 });
 
-router.put('/:_id', async(req, res) => {
+router.put('/:_id', auth, async(req, res) => {
     const error = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -58,7 +59,7 @@ router.put('/:_id', async(req, res) => {
         .catch(err => {});
 });
 
-router.delete('/:_id', async(req, res) => {
+router.delete('/:_id', auth, async(req, res) => {
     await Movie.findByIdAndRemove(req.params._id, (err, movie) => {
             if (err || movie === null) return res.status(404).send("The moive with the given ID was not found.");
             else res.send(movie);

@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { Customer, validate } = require('../models/customer');
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/auth');
 
 router.get('/', async(req, res) => {
     const customers = await Customer.find().sort('name');
@@ -16,7 +17,7 @@ router.get('/:_id', async(req, res) => {
         .catch(err => {});
 });
 
-router.post('/', async(req, res) => {
+router.post('/', auth, async(req, res) => {
     const error = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -30,7 +31,7 @@ router.post('/', async(req, res) => {
     }
 });
 
-router.put('/:_id', async(req, res) => {
+router.put('/:_id', auth, async(req, res) => {
     const error = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -41,7 +42,7 @@ router.put('/:_id', async(req, res) => {
         .catch(err => {});
 });
 
-router.delete('/:_id', async(req, res) => {
+router.delete('/:_id', auth, async(req, res) => {
     await Customer.findByIdAndDelete(req.params._id, (err, customer) => {
             if (err || customer === null) res.status(404).send('The customer with the given ID was not found.');
             else res.send(customer);
