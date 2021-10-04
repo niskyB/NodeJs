@@ -1,5 +1,6 @@
 require('express-async-errors');
 const winston = require('winston');
+require('winston-mongodb');
 const express = require('express');
 const genres = require('./routes/genres');
 const customers = require('./routes/customers');
@@ -12,7 +13,8 @@ const app = express();
 const mongoose = require('mongoose');
 const config = require('config');
 
-winston.add(new winston.transports.File({ filename: 'logfile.log' }));
+winston.add(new winston.transports.File({ filename: 'logfile.log', useUnifiedTopology: true }));
+winston.add(new winston.transports.MongoDB({ db: 'mongodb://localhost/playground', useUnifiedTopology: true }));
 
 if (!config.get('jwtPrivateKey')) {
     console.error('FATAL ERROR: jwtPrivateKey is not defined.');
