@@ -13,6 +13,11 @@ const app = express();
 const mongoose = require('mongoose');
 const config = require('config');
 
+process.on('uncaughtException', (ex) => {
+    console.log('WE GOT AN UNCATCH EXCEPTION');
+    winston.error(ex.message, ex);
+})
+
 winston.add(new winston.transports.File({ filename: 'logfile.log', useUnifiedTopology: true }));
 winston.add(new winston.transports.MongoDB({ db: 'mongodb://localhost/playground', useUnifiedTopology: true }));
 
